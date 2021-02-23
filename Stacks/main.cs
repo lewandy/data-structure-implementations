@@ -4,64 +4,102 @@ class MainClass {
   public static void Main (string[] args) {
 
     // Creamos una nueva pila vacia.
-    Stack<string> stack = new Stack<string>(5);
+    Stack stack = new Stack(5);
 
     //Agregamos un nuevo elemento a la pila
-    stack.push("Primer elemento");
-    stack.push("Segundo elemento");
-    stack.push("Tercero elemento");
+    stack.Push("Primer elemento");
+    stack.Push("Segundo elemento");
+    stack.Push("Tercero elemento");
 
-    Console.WriteLine("Ultimo elemento: "+stack.top());
+    Console.WriteLine("Ultimo elemento: " + stack.Top());
 
-    stack.pop();
-    stack.pop();
+    stack.Pop();
+    stack.Pop();
 
-    // stack.push("Elemento extra");
+    Console.WriteLine("Ultimo elemento: " + stack.Top());
 
-    Console.WriteLine("Ultimo elemento: "+stack.top());
-
-    Console.WriteLine("El tamaño de la pila : " + stack.size());
-    Console.WriteLine("¿La pila esta vacia? " + stack.empty());
-
+    Console.WriteLine("El tamaño de la pila : " + stack.Size());
+    Console.WriteLine("¿La pila esta vacia? " + stack.Empty());
   }
 }
 
-public class Stack<T> {
-  private T[] stack;
-  int currentPosition = 0; 
+/// <summary>
+/// Clase Stack. Basada en la estructura de .NET. https://docs.microsoft.com/en-us/dotnet/api/system.collections.stack?view=net-5.0
+/// </summary>
+public class Stack
+{
+    private const int DEFAULT_STACK_SIZE = 10;
+    private object[] _stackItems;
+    private int currentPosition = -1;
 
-  // Crear (constructor): crea la pila vacía.
-  public Stack(int size){
-    stack = new T[size];
-  }
+    //  Este constructor crea la pila con un tamaño por defecto. La pila irá incrementado de acuerdo a lo necesario. 
+    public Stack() 
+        : this(DEFAULT_STACK_SIZE)
+    { }
 
-  // Apilar (push): añade un elemento a la pila.
-  public void push(T input) {
-    stack[currentPosition] = input;
-    currentPosition++;
-  }
-
-  // Desapilar (pop): lee y retira el elemento superior de la pila.
-  public void pop() {
-    currentPosition--;
-  }
-
-  // Leer último (top o peek): lee el elemento superior de la pila sin retirarlo.
-  public T top(){
-    if (empty()) {
-      throw new Exception("La pila esta vacia");
+    //  Constructor que recibe un tamaño inicial.
+    public Stack(int initialSize)
+    {
+        if(initialSize < DEFAULT_STACK_SIZE)
+            _stackItems = new object[DEFAULT_STACK_SIZE];
+        else
+            _stackItems = new object[initialSize];
     }
 
-    return stack[currentPosition - 1];
-  }
+    //  Apilar (push): añade un elemento a la pila.
+    public void Push(object input)
+    {
+        var nextPosition = ++currentPosition;
+        bool isHigherOrEqual = nextPosition >= _stackItems.Length;
 
-  // Tamaño (size): regresa el número de elementos de la pila. 
-  public int size(){
-    return currentPosition;
-  }
+        if (isHigherOrEqual)
+            Resize();
 
-  // Vacía (empty): devuelve cierto si la pila está sin elementos o falso en caso de que contenga alguno.
-  public bool empty(){
-    return currentPosition == 0;
-  }
+        _stackItems[currentPosition] = input;
+    }
+
+    //  Desapilar (pop): lee y retira el elemento superior de la pila.
+    public void Pop()
+    {
+        if (Empty())
+            throw new InvalidOperationException("Stack is empty.");
+
+        currentPosition--;
+    }
+
+    //  Leer último (top o peek): lee el elemento superior de la pila sin retirarlo.
+    public object Top()
+    {
+        if (Empty())
+        {
+            throw new Exception("La pila esta vacia");
+        }
+
+        return _stackItems[currentPosition];
+    }
+
+    //  Tamaño (size): regresa el número de elementos de la pila. 
+    public int Size()
+    {
+        return currentPosition + 1;
+    }
+
+    //  Vacía (empty): devuelve cierto si la pila está sin elementos o falso en caso de que contenga alguno.
+    public bool Empty()
+    {
+        return currentPosition < 0;
+    }
+
+    // Reajusta la colección al doble de su tamaño actual.
+    private void Resize()
+    {
+        var currentSize = _stackItems.Length;
+
+        var newStack = new object[currentSize * 2];
+
+        for (int increment = 0; increment < currentSize; increment++)
+            newStack[increment] = _stackItems[increment];
+
+        _stackItems = newStack;
+    }
 }
